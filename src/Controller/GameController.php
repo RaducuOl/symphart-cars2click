@@ -33,6 +33,17 @@ class GameController extends Controller{
     }
 
     /**
+     * @Route("/game/today/list", name="game_list_today")
+     * @Method({"GET"})
+     */
+    public function indexGames(){
+        $games = $this->getDoctrine()->getRepository(Game::class)->findAll();
+        $teams = $this->getDoctrine()->getRepository(Team::class)->findAll();
+        // $scores = $this->getDoctrine()->getRepository(Score::class)->findAll();
+        return $this->render('games/index-games.html.twig',array('games'=>$games,'teams'=>$teams));
+    }
+
+    /**
      * @Route("/game/new", name="new_game")
      * @Method({"GET","POST"})
      */
@@ -226,7 +237,9 @@ class GameController extends Controller{
                 $game->setStage($arr['stage']);
                 $game->addTeam($team_home);
                 $game->addTeam($team_away);
-                $game->addScore($score);
+                $game->addScore($home_score);
+                $game->addScore($away_score);
+
 
 
                 $entityManager->persist($game);
@@ -257,8 +270,17 @@ class GameController extends Controller{
      */
     public function show($id){
         $game = $this->getDoctrine()->getRepository(Game::class)->find($id);
+        // $game_team = $this->getDoctrine()->getRepository(Game::class)->find($id);
+        // $teams = $this->getDoctrine()->getRepository(Team::class)->findBy();
+        $teams = $game->getTeams();
+        $team_home = $teams[0]->getName();
+        $team_away = $teams[1]->getName();
 
-        return $this->render('games/show.html.twig',array('game'=>$game));
+        $scores = $game->getScores();
+        $score_home = $scores[0]->getScore();
+        var_dump($scores[1]->getScore());
+        $score_away = $scores[1]->getScore();
+        return $this->render('games/show.html.twig',array('game'=>$game,'current_date'=> substr($game->getDate(),0,10),'team_home'=>$team_home,'team_away'=>$team_away,'score_home'=>$score_home,'score_away'=>$score_away));
     }
 
     /**

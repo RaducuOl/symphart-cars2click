@@ -3,8 +3,25 @@
 {% block title %}SymphArt Games{% endblock %}
 
 {% block body %}
-  <h1>{{game.title}}</h1>
-  <p>{{game.body}}</p>
+  {# <h1>{{game.title}}</h1>
+  <p>{{game.body}}</p> #}
   <hr>
   <a href="/">Go back</a>
+
+  <section id="two" class="wrapper style3">
+				<div class="inner">
+					<header class="align-center">
+            <p style="color: white">{{team_home}} versus {{team_away}}</p>
+						<h2 style="color: orange">{{current_date}}</h2>
+						<a href="https://www.nba.com/" class="button alt">NBA official</a>
+
+						<footer class="align-center">
+							<h1 style="color: orange;text-align: center;font-size: 20px;"> Final score</h1>
+										Home:{{score_home}}  --- {{score_away}}:Away 
+										
+									</footer>
+					</header>
+
+				</div>
+			</section>
 {% endblock %}

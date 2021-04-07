@@ -62,9 +62,16 @@ class Game
       */
     private $teams;
 
+    // /**
+    //  * @ORM\OneToMany(targetEntity=Score::class, mappedBy="game", orphanRemoval=true)
+    //  */
+
     /**
-     * @ORM\OneToMany(targetEntity=Score::class, mappedBy="game", orphanRemoval=true)
-     */
+      * @ORM\ManyToMany(targetEntity="Score")
+      * @ORM\JoinTable(name="game_score",
+      * joinColumns={@ORM\JoinColumn(name="game_id", referencedColumnName="id")},
+      * inverseJoinColumns={@ORM\JoinColumn(name="score_id",referencedColumnName="id")})
+      */
     private $scores;
 
     /**

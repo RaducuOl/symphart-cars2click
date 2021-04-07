@@ -22,14 +22,18 @@ class Score
      */
     private $location;
 
+    // /**
+    //  * @ORM\ManyToOne(targetEntity=Game::class, inversedBy="scores")
+    //  * @ORM\JoinColumn(nullable=false)
+    //  */
+
     /**
-     * @ORM\ManyToOne(targetEntity=Game::class, inversedBy="scores")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToMany(targetEntity=Game::class, inversedBy="scores")
      */
     private $game;
 
     /**
-     * @ORM\OneToOne(targetEntity=Team::class, inversedBy="team", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=Team::class, inversedBy="score", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $team;
@@ -38,6 +42,11 @@ class Score
      * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $score;
+
+    public function __construct()
+    {
+        $this->game = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -56,21 +65,45 @@ class Score
         return $this;
     }
 
-    public function getGame(): ?Game
+    // public function getGame(): ?Game
+    // {
+    //     return $this->game;
+    // }
+
+    // public function setGame(?Game $game): self
+    // {
+    //     $this->game = $game;
+
+    //     return $this;
+    // }
+
+    // public function getTeam(): ?Team
+    // {
+    //     return $this->team;
+    // }
+
+    /**
+     * @return Collection|Score[]
+     */
+    public function getScore(): Collection
     {
-        return $this->game;
+        return $this->score;
     }
 
-    public function setGame(?Game $game): self
+    public function addScore(Score $score): self
     {
-        $this->game = $game;
+        if (!$this->score->contains($score)) {
+            $this->score[] = $score;
+        }
 
         return $this;
     }
 
-    public function getTeam(): ?Team
+    public function removeScore(Score $score): self
     {
-        return $this->team;
+        $this->score->removeElement($score);
+
+        return $this;
     }
 
     public function setTeam(Team $team): self

@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SymphArt Games{% endblock %}
+
+{% block body %}
+  {% if games %}
+    <table id="games" class="table table-striped">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Week</th>
+
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for game in games %}
+          <tr>
+            <td>{{ game.time }}</td>
+            <td>{{ game.week }}</td>
+
+
+            <td>
+              <a href="/game/{{game.id}}" class="btn btn-dark">Show</a>
+              <a href="/game/edit/{{ game.id }}" class="btn btn-light">Edit</a>
+              <a href="#" class="btn btn-danger delete-game" data-id="{{game.id}}">Delete</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No Games to display</p>
+  {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+  <script src="/js/main.js"></script>
+{% endblock %}
