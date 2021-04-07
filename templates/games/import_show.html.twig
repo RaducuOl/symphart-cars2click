@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SymphArt Games{% endblock %}
+
+{% block body %}
+ {% if response %}
+  
+  <a href="/">Go back</a>
+  {% else %}
+    <p>No Games to display</p>
+  {% endif %}
+{% endblock %}
