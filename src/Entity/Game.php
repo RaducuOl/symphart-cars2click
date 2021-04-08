@@ -67,13 +67,9 @@ class Game
     //  */
 
     /**
-      * @ORM\ManyToMany(targetEntity="Score")
-      * @ORM\JoinTable(name="game_score",
-      * joinColumns={@ORM\JoinColumn(name="game_id", referencedColumnName="id")},
-      * inverseJoinColumns={@ORM\JoinColumn(name="score_id",referencedColumnName="id")})
-      */
-    private $scores;
-
+     * @ORM\OneToMany(targetEntity=Score::class, mappedBy="game")
+     */
+    private $score;
     /**
      * @ORM\ManyToOne(targetEntity=League::class, inversedBy="game")
      */
@@ -87,7 +83,7 @@ class Game
     public function __construct()
     {
         $this->teams = new ArrayCollection();
-        $this->scores = new ArrayCollection();
+        $this->score = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -198,15 +194,15 @@ class Game
     /**
      * @return Collection|Score[]
      */
-    public function getScores(): Collection
+    public function getScore(): Collection
     {
-        return $this->scores;
+        return $this->score;
     }
 
     public function addScore(Score $score): self
     {
-        if (!$this->scores->contains($score)) {
-            $this->scores[] = $score;
+        if (!$this->score->contains($score)) {
+            $this->score[] = $score;
             $score->setGame($this);
         }
 
@@ -215,7 +211,7 @@ class Game
 
     public function removeScore(Score $score): self
     {
-        if ($this->scores->removeElement($score)) {
+        if ($this->score->removeElement($score)) {
             // set the owning side to null (unless already changed)
             if ($score->getGame() === $this) {
                 $score->setGame(null);
@@ -248,4 +244,10 @@ class Game
 
         return $this;
     }
+
+
+
+    // o tara are mai multe jocuri
+    //country = game
+    //game = score
 }

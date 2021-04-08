@@ -30,14 +30,21 @@ class Team
     private $game;
 
     /**
-     * @ORM\Column(type="string", length=100, nullable=true)
+     * @ORM\OneToMany(targetEntity=Score::class, mappedBy="team")
      */
     private $score;
+
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $score_total;
 
     
     public function __construct()
     {
         $this->game = new ArrayCollection();
+        $this->score = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -81,32 +88,45 @@ class Team
         return $this;
     }
 
-    public function getScore(): ?string
+    public function getScoreTotal(): ?string
     {
-        return $this->score;
+        return $this->score_total;
     }
 
-    public function setScore(?string $score): self
+    public function setScoreTotal(?string $score_total): self
     {
-        $this->score = $score;
+        $this->score_total = $score_total;
 
         return $this;
     }
 
-    // public function getScoreFromTable(): ?Score
-    // {
-    //     return $this->score_from_table;
-    // }
+    /**
+     * @return Collection|Score[]
+     */
+    public function getScore(): Collection
+    {
+        return $this->score;
+    }
 
-    // public function setScoreFromTable(Score $score_from_table): self
-    // {
-    //     // set the owning side of the relation if necessary
-    //     if ($score_from_table->getTeam() !== $this) {
-    //         $score_from_table->setTeam($this);
-    //     }
+    public function addScore(Score $score): self
+    {
+        if (!$this->score->contains($score)) {
+            $this->score[] = $score;
+            $score->setTeam($this);
+        }
 
-    //     $this->score_from_table = $score_from_table;
+        return $this;
+    }
 
-    //     return $this;
-    // }
+    public function removeScore(Score $score): self
+    {
+        if ($this->score->removeElement($score)) {
+            // set the owning side to null (unless already changed)
+            if ($score->getTeam() === $this) {
+                $score->setTeam(null);
+            }
+        }
+
+        return $this;
+    }
 }

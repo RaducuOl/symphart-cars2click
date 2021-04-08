@@ -44,11 +44,11 @@ class GameController extends Controller{
     }
 
     /**
-     * @Route("/game/new", name="new_game")
+     * @Route("/article/new", name="new_article")
      * @Method({"GET","POST"})
      */
     public function newGame(Request $request){
-        $game = new Game();
+        // $game = new Article();
         //creeam un form pt noul joc
         $form = $this->createFormBuilder($game)
         ->add('title',TextType::class,array('attr'=>array('class'=>'form-control')))
@@ -70,12 +70,12 @@ class GameController extends Controller{
     }
 
     /**
-     * @Route("/game/edit/{id}", name="edit_game")
+     * @Route("/article/edit/{id}", name="edit_game")
      * @Method({"GET","POST"})
      */
-    public function editGame(Request $request,$id){
-        $game = new Game();
-        $game = $this->getDoctrine()->getRepository(Game::class)->find($id);
+    public function editArticle(Request $request,$id){
+        $article = new Article();
+        $article = $this->getDoctrine()->getRepository(Article::class)->find($id);
 
         //creeam un form pt noul joc
         $form = $this->createFormBuilder($game)
@@ -126,17 +126,14 @@ class GameController extends Controller{
             echo "cURL Error #:" . $err;
         } else {
             $decoded = json_decode($response,true);
-            // print_r($decoded['response']);
             $json_arr = $decoded['response'];
             foreach($json_arr as $arr){
-                // var_dump($arr);
 
                 $entityManager = $this->getDoctrine()->getManager();
                 $game = new Game();
 
                 //check if the League exists, if not, create it
                 //add the respective game to it's League
-                var_dump('1');
 
                 if(!$this->getDoctrine()->getRepository(League::class)->findOneBy(['name' => $arr['league']['name']])){
                     $league = new League();
@@ -154,12 +151,10 @@ class GameController extends Controller{
 
                 //check if the Country exists, if not, create it
                 //add the respective game to it's Country
-                var_dump('2');
 
                 if(!$this->getDoctrine()->getRepository(Country::class)->findOneBy(['name' => $arr['country']['name']])){
                     $country = new Country();
                     $country->setName($arr['country']['name']);
-                    // $country->addGame($game);
                     $entityManager->persist($country);
                     $entityManager->flush();
                     $game->setCountry($country);
@@ -174,58 +169,54 @@ class GameController extends Controller{
 
                 //check if the teams exist, if not, create them
                 //link the teams to the specific Game
-                var_dump('3');
-
+                $team_home = null;
+                $team_away = null;
                 foreach($arr['teams'] as $team_arr){
-                        // var_dump($team_arr);
                     if(!$this->getDoctrine()->getRepository(Team::class)->findBy(['name' => $team_arr['name']])){
                         $team = new Team();
                         $team->setName($team_arr['name']);
-                        // $team->addGame($game);
                         $entityManager->persist($team);
                         $entityManager->flush();
-                        // $game->addTeam($team);
-                        var_dump('3.1.0');
                     }else{
                         $team = $this->getDoctrine()->getRepository(Team::class)->findOneBy(['name' => $team_arr['name']]);
                         $entityManager->persist($team);
                         $entityManager->flush();
-                        var_dump('3.1.1');
+                    }
+                    if($team_home==null){
+                        $team_home = $this->getDoctrine()->getRepository(Team::class)->findOneBy(['name' => $team_arr['name']]);
+                    }else{
+                        $team_away = $this->getDoctrine()->getRepository(Team::class)->findOneBy(['name' => $team_arr['name']]);
                     }
                 }
 
                 //check if the scores are related to the game, if not, connect them
-                $team_home = null;
-                $team_away = null;
+                
                 $home_score = null;
                 $away_score = null;
 
                 //counter for Home or Away, the teams provided always come as HOME and then AWAY
                 $i = 0;
-                var_dump('4');
 
                 foreach($arr['scores'] as $score_arr){
 
                     $score = new Score();
-                    foreach($arr['teams'] as $team_arr){
-                        if($team_home==null){
-                            $team_home = $this->getDoctrine()->getRepository(Team::class)->findOneBy(['name' => $team_arr['name']]);
-                        }else{
-                            $team_away = $this->getDoctrine()->getRepository(Team::class)->findOneBy(['name' => $team_arr['name']]);
-                        }
+                    if($i==0){
+                        $score->setTeam($team_home);     
+                    }else{
+                        $score->setTeam($team_away);
                     }
                     
                     //the results provided by the API don't always give the quarter score therefore we will only use the "total"
                     $score->setScore($score_arr['total']);
                     $entityManager->persist($score);
                     $entityManager->flush();
+
                     if($home_score==null){
                         $home_score = $score;
                     }else{
                         $away_score = $score;
                     }
                 }
-                var_dump('5');
 
                 //finalizing the game object
                 $game->setDate($arr['date']);
@@ -237,10 +228,9 @@ class GameController extends Controller{
                 $game->setStage($arr['stage']);
                 $game->addTeam($team_home);
                 $game->addTeam($team_away);
+
                 $game->addScore($home_score);
                 $game->addScore($away_score);
-
-
 
                 $entityManager->persist($game);
                 $entityManager->flush();
@@ -248,20 +238,22 @@ class GameController extends Controller{
                 //adding the game relationship to the other entities related to it
                 $home_score->setLocation('HOME');
                 $away_score->setLocation('AWAY');
+
                 if( $home_score->getTeam()==null && $away_score->getTeam()==null ){
                     $home_score->setTeam($team_home);
                     $away_score->setTeam($team_away);
                 }
-                // $team_home->addGame($game);
-                // $team_away->addGame($game);
+
                 $entityManager->persist($home_score);
                 $entityManager->persist($away_score);
                 $entityManager->flush();
                 
             }
-            $text = 'Data imported successufully';
-            // var_dump( json_encode($response));
-            return $text;
+            // $text = 'Data imported successufully';
+            // // var_dump( json_encode($response));
+            // return $text;
+
+            echo $response;
         }
     }
 
@@ -276,7 +268,7 @@ class GameController extends Controller{
         $team_home = $teams[0]->getName();
         $team_away = $teams[1]->getName();
 
-        $scores = $game->getScores();
+        $scores = $game->getScore();
         $score_home = $scores[0]->getScore();
         var_dump($scores[1]->getScore());
         $score_away = $scores[1]->getScore();
