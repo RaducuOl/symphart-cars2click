@@ -36,18 +36,34 @@ class GameController extends Controller{
      * @Route("/game/today/list", name="game_list_today")
      * @Method({"GET"})
      */
-    public function indexGames(){
+    public function indexGames(Request $request){
+
+        $em = $this->getDoctrine()->getManager();
+        $dql   = "SELECT g FROM App:Game g";
+        $query = $em->createQuery($dql);
+
         $games = $this->getDoctrine()->getRepository(Game::class)->findAll();
-        $teams = $this->getDoctrine()->getRepository(Team::class)->findAll();
-        // $scores = $this->getDoctrine()->getRepository(Score::class)->findAll();
-        return $this->render('games/index-games.html.twig',array('games'=>$games,'teams'=>$teams));
+
+        /**
+         * @var $paginator \Knp\Component\Pager\Paginator
+         */
+        $paginator = $this->get('knp_paginator');
+        $result = $paginator->paginate(
+            $games,
+            $request->query->getInt('page',1),
+            $request->query->getInt('limit',10)
+        );
+        return $this->render('games/index-games.html.twig',[
+            'games'=>$result,
+        ]);
+        
     }
 
     /**
      * @Route("/article/new", name="new_article")
      * @Method({"GET","POST"})
      */
-    public function newGame(Request $request){
+    public function newArticle(Request $request){
         // $game = new Article();
         //creeam un form pt noul joc
         $form = $this->createFormBuilder($game)
@@ -270,7 +286,6 @@ class GameController extends Controller{
 
         $scores = $game->getScore();
         $score_home = $scores[0]->getScore();
-        var_dump($scores[1]->getScore());
         $score_away = $scores[1]->getScore();
         return $this->render('games/show.html.twig',array('game'=>$game,'current_date'=> substr($game->getDate(),0,10),'team_home'=>$team_home,'team_away'=>$team_away,'score_home'=>$score_home,'score_away'=>$score_away));
     }

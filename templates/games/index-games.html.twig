@@ -9,27 +9,42 @@
         <tr>
           <th>Time</th>
           <th>Week</th>
+          <th>Team Home</th>
+          <th>Team Away</th>
 
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for game in games %}
-          <tr>
-            <td>{{ game.time }}</td>
-            <td>{{ game.week }}</td>
+            {% set break = false %}
 
-
-            <td>
-              <a href="/game/{{game.id}}" class="btn btn-dark">Show</a>
-            </td>
-          </tr>
+            <tr>
+                <td>{{ game.time }}</td>
+                <td>{{ game.week }}</td>
+                <td>
+                {% for team in game.teams|slice(0,1) %}
+                    {{ team.name }}
+                {% endfor %}
+                </td>
+                <td>
+                {% for team in game.teams|slice(1,1) %}
+                    {{ team.name }}
+                {% endfor %}
+                </td>
+                <td>
+                <a href="/game/{{game.id}}" class="btn btn-dark">Show</a>
+                </td>
+            </tr>
         {% endfor %}
       </tbody>
     </table>
   {% else %}
     <p>No Games to display</p>
   {% endif %}
+  <div class="navigation">
+        {{ knp_pagination_render(games) }}
+    </div>
 {% endblock %}
 
 {% block javascripts %}
